@@ -1,43 +1,61 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
-type Pair struct {
-	children []*Pair
-}
+var mapOfResults map[int][]string
 
 func main() {
-	n := 4
-	fmt.Println("n = ", n)
+	n := 17
 
-	container := make([]*Pair, n)
-	for i := 0; i < n; i++ {
-		container[i] = &Pair{make([]*Pair, 0)}
+	mapOfResults = map[int][]string{
+		2: {"(())", "()()"},
 	}
-	//container[0] = &Pair{make([]*Pair, 1)}
-	//container[0].children[0] = &Pair{make([]*Pair, 1)}
-	//container[0].children[0].children[0] = &Pair{make([]*Pair, 0)}
 
+	start := time.Now()
+	generateParentheses(n)
+	//runWithPrint(n)
+	elapsed := time.Since(start)
 
-	fmt.Println(printChildren(&container))
+	fmt.Println("DONE ", elapsed)
 }
 
-func getNextCombination(container *[]*Pair) (*[]*Pair, error) {
+func generateParentheses(n int) *[]string {
+	elem, ok := mapOfResults[n]
+	if ok {
+		return &elem
+	}
 
+	baseSet := *generateParentheses(n - 1)
 
-	return nil, nil
+	var returnSet []string
+
+	//append parentheses on the left
+	for _, str := range baseSet {
+		returnSet = append(returnSet, "[]"+str)
+	}
+
+	//surround with parentheses
+	for _, str := range baseSet {
+		returnSet = append(returnSet, "<"+str+">")
+	}
+
+	//append parentheses on the right
+	for i := 0; i < len(baseSet)-1; i++ {
+		returnSet = append(returnSet, baseSet[i]+"{}")
+	}
+
+	//add to results
+	mapOfResults[n] = returnSet
+	return &returnSet
 }
 
-func printChildren(children *[]*Pair) string {
-	if len(*children) == 0 {
-		return ""
+//noinspection GoUnusedFunction
+func runWithPrint(n int) {
+	setOfParentheses := *generateParentheses(n)
+	for _, paren := range setOfParentheses {
+		fmt.Println(paren)
 	}
-
-	buf := ""
-
-	for _, v := range *children {
-		buf += "(" + printChildren(&v.children) + ")"
-	}
-
-	return buf
 }
