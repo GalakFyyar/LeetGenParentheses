@@ -26,6 +26,47 @@ func main() {
 	fmt.Println("DONE")
 }
 
+func generateParenthesesByteSliceNoAppend(n int) *[][]byte {
+	if n == 2 {
+		return &[][]byte{[]byte("(())"), []byte("()()")}
+	}
+
+	baseSet := *generateParenthesesByteSliceNoAppend(n - 1)
+	baseLength := len(baseSet)
+
+	returnSet := make([][]byte, baseLength*3-1)
+
+	firstThird := returnSet[0:baseLength]
+	secondThird := returnSet[baseLength : baseLength*2]
+	lastThird := returnSet[baseLength*2:]
+
+	//append parentheses on the left for the first third
+	for i := range firstThird {
+		firstThird[i][0] = '['
+		firstThird[i][1] = ']'
+		copy(firstThird[2:], baseSet)
+	}
+
+	//surround with parentheses for the second third
+	for i := range secondThird {
+		secondThird[i] = []byte{'<'} // + baseSet[i] + ">"
+	}
+
+	//append parentheses on the right for the last third
+	for i := range lastThird {
+		//lastThird[i] = baseSet[i] + "{}"
+		j := 0
+		for ; j < len(baseSet); j++ {
+			lastThird[i][j] = baseSet[i][j]
+		}
+		lastThird[i][j] = '{'
+		j++
+		lastThird[i][j] = '}'
+	}
+
+	return &returnSet
+}
+
 func generateParenthesesNoAppend(n int) *[]string {
 	if n == 2 {
 		return &[]string{"(())", "()()"}
